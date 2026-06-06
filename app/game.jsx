@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { buildDeck, ANSWER_LABEL } from "../lib/items";
 import { rankFor } from "../lib/ranks";
 
-// bin colours follow suffolk's "better recycling" scheme (the same one
-// babergh & mid suffolk are rolling out): black general, blue recycling,
-// green-lidded paper & card, grey food caddy. "none of these" has no bin.
+// bins are labelled by colour only (not by what goes in them) so you have to
+// actually know the scheme. colours follow suffolk's "better recycling":
+// black general, blue recycling, green-lid paper & card, grey food caddy.
 const BINS = [
-  { value: "general", label: "general rubbish", colour: "#1a1a1a" },
-  { value: "recycling", label: "recycling", colour: "#2b6cb0" },
-  { value: "paper", label: "paper & card", colour: "#3f8f29" },
-  { value: "food", label: "food caddy", colour: "#8a8d91" },
+  { value: "general", label: "black bin", colour: "#1a1a1a" },
+  { value: "recycling", label: "blue bin", colour: "#2b6cb0" },
+  { value: "paper", label: "green bin", colour: "#3f8f29" },
+  { value: "food", label: "little grey bin", colour: "#8a8d91" },
   { value: "trick", label: "none of these", colour: null },
 ];
 
@@ -281,7 +281,9 @@ function Results({ phase, streak, deadItem, origin, history, onRetry }) {
       ) : (
         deadItem && (
           <div className="reveal">
-            it was the {ANSWER_LABEL[deadItem.answer]}, obviously.
+            {deadItem.answer === "trick"
+              ? "it was none of these, obviously."
+              : `it was the ${ANSWER_LABEL[deadItem.answer]}, obviously.`}
             <br />
             {deadItem.reveal}
           </div>
