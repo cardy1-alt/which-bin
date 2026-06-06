@@ -1,16 +1,24 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
-export const runtime = "edge";
+// node runtime (not edge) so the bundled serif fonts don't blow the 1mb edge
+// function size limit. node functions have a much larger limit.
+export const runtime = "nodejs";
 export const contentType = "image/png";
+export const dynamic = "force-dynamic";
 
-// bundled liberation serif (times-metric-compatible). loaded as a static asset
-// so it works on the edge runtime.
-const serifData = fetch(new URL("./serif.ttf", import.meta.url)).then((r) =>
-  r.arrayBuffer()
-);
-const serifBoldData = fetch(new URL("./serif-bold.ttf", import.meta.url)).then(
-  (r) => r.arrayBuffer()
-);
+// bundled liberation serif (times-metric-compatible). read from the project
+// root at runtime; the ttf files are force-included in this function's bundle
+// via outputFileTracingIncludes in next.config.mjs.
+async function loadFonts() {
+  const dir = join(process.cwd(), "app", "share");
+  const [serif, serifBold] = await Promise.all([
+    readFile(join(dir, "serif.ttf")),
+    readFile(join(dir, "serif-bold.ttf")),
+  ]);
+  return { serif, serifBold };
+}
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -19,7 +27,7 @@ export async function GET(req) {
   const hasScore = streakRaw !== null && streakRaw !== "";
   const streak = hasScore ? streakRaw : "";
 
-  const [serif, serifBold] = await Promise.all([serifData, serifBoldData]);
+  const { serif, serifBold } = await loadFonts();
 
   return new ImageResponse(
     (
