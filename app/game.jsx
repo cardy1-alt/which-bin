@@ -15,6 +15,9 @@ const BINS = [
   { value: "trick", label: "none of these", colour: null },
 ];
 
+const MAIN_BINS = BINS.filter((b) => b.value !== "trick");
+const TRICK_BIN = BINS.find((b) => b.value === "trick");
+
 const ADVANCE_MS = 120;
 
 export default function Game() {
@@ -93,13 +96,21 @@ export default function Game() {
 }
 
 function Title() {
-  return <h1>which bin is it?</h1>;
+  return (
+    <div className="head">
+      <h1>which bin is it?</h1>
+      <p className="tagline">
+        the council rewrote every bin rule in suffolk. they're not totally sure
+        either. your turn.
+      </p>
+    </div>
+  );
 }
 
-function Swatch({ colour }) {
+function Swatch({ colour, big }) {
   return (
     <span
-      className="swatch"
+      className={big ? "swatch big" : "swatch"}
       style={{ background: colour || "#fff" }}
       aria-hidden="true"
     />
@@ -119,20 +130,28 @@ function Round({ item, streak, locked, onChoose }) {
         )}
         <div className="itemname">{item.name}</div>
       </div>
-      <p>which bin?</p>
-      <div>
-        {BINS.map((b) => (
+      <p className="prompt">go on then. which bin?</p>
+      <div className="bingrid">
+        {MAIN_BINS.map((b) => (
           <button
             key={b.value}
-            className="binbtn"
+            className="bintile"
             disabled={locked}
             onClick={() => onChoose(b.value)}
           >
-            <Swatch colour={b.colour} />
-            {b.label}
+            <Swatch colour={b.colour} big />
+            <span>{b.label}</span>
           </button>
         ))}
       </div>
+      <button
+        className="binbtn binwide"
+        disabled={locked}
+        onClick={() => onChoose(TRICK_BIN.value)}
+      >
+        <Swatch colour={TRICK_BIN.colour} />
+        {TRICK_BIN.label}
+      </button>
       <Footer />
     </div>
   );
@@ -163,19 +182,19 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
 
   return (
     <div>
-      <h1>{won ? "you cleared every bin." : "wrong bin."}</h1>
+      <h1>{won ? "you cleared every bin." : "nope. wrong bin."}</h1>
       <div className="bigstreak">{streak}</div>
-      <p className="streak">items sorted before you cracked</p>
+      <p className="streak">bins you got right before you bottled it</p>
       <div className="rank">{rank.label}</div>
 
       {won ? (
         <div className="reveal">
-          nobody knows this much about babergh & mid suffolk's bins by accident. are you a council employee?
+          you sorted all {streak} without a single mistake. that is not normal. nobody knows the bins this well by accident. blink twice if the council is making you do this.
         </div>
       ) : (
         deadItem && (
           <div className="reveal">
-            it was: {ANSWER_LABEL[deadItem.answer]}.
+            it was the {ANSWER_LABEL[deadItem.answer]}, obviously.
             <br />
             {deadItem.reveal}
           </div>
@@ -186,6 +205,7 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
         {origin && <img src={ogUrl} alt="your share card" width="1200" height="630" />}
       </div>
 
+      <p className="prompt">go on, drag your friends down with you:</p>
       <div className="actions">
         <a href={xHref} target="_blank" rel="noopener noreferrer">
           post to x

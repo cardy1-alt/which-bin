@@ -74,6 +74,50 @@ button {
   flex: 0 0 auto;
 }
 
+/* 2x2 grid of the four real bins */
+.bingrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.bintile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  aspect-ratio: 1 / 1;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 12px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.bintile:hover {
+  background: #f0f0f0;
+}
+
+.bintile:disabled {
+  color: #888;
+  cursor: default;
+}
+
+.swatch.big {
+  width: 46px;
+  height: 46px;
+  margin: 0;
+}
+
+/* "none of these" sits full width on its own row below the grid */
+.binwide {
+  justify-content: center;
+  margin-top: 10px;
+}
+
 .binbtn:hover {
   background: #f0f0f0;
 }
@@ -83,15 +127,28 @@ button {
   cursor: default;
 }
 
+.head {
+  margin-bottom: 6px;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  margin: 2px 0 0;
+}
+
+.prompt {
+  margin: 12px 0 8px;
+}
+
 .item {
   text-align: center;
   border: 1px solid #000;
-  padding: 30px 14px;
-  margin: 16px 0;
+  padding: 22px 14px;
+  margin: 12px 0;
 }
 
 .item .emoji {
-  font-size: 128px;
+  font-size: 104px;
   line-height: 1;
 }
 
