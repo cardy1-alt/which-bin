@@ -206,6 +206,13 @@ button {
   margin: 6px 0 16px;
 }
 
+.resultgrid {
+  font-size: 1.7rem;
+  line-height: 1.15;
+  letter-spacing: 2px;
+  margin: 10px 0;
+}
+
 .reveal {
   border: 1px solid #000;
   padding: 12px;

@@ -18,6 +18,17 @@ const BINS = [
 const MAIN_BINS = BINS.filter((b) => b.value !== "trick");
 const TRICK_BIN = BINS.find((b) => b.value === "trick");
 
+// emoji squares for the wordle-style copy/paste result. closest to the bin
+// colours: black general, blue recycling, green paper, brown food caddy,
+// white "none of these".
+const BIN_EMOJI = {
+  general: "⬛",
+  recycling: "🟦",
+  paper: "🟩",
+  food: "🟫",
+  trick: "⬜",
+};
+
 const ADVANCE_MS = 120;
 
 export default function Game() {
@@ -28,6 +39,7 @@ export default function Game() {
   const [deadItem, setDeadItem] = useState(null);
   const [locked, setLocked] = useState(false);
   const [origin, setOrigin] = useState("");
+  const [history, setHistory] = useState([]); // bin answer for each correct item
   const timer = useRef(null);
 
   // build the deck on the client after mount (avoids a hydration mismatch
@@ -44,6 +56,7 @@ export default function Game() {
     setStreak(0);
     setDeadItem(null);
     setLocked(false);
+    setHistory([]);
     setPhase("playing");
   }
 
@@ -54,6 +67,7 @@ export default function Game() {
       // correct: streak up, advance automatically after a short beat
       setLocked(true);
       setStreak((s) => s + 1);
+      setHistory((h) => [...h, item.answer]);
       timer.current = setTimeout(() => {
         const next = idx + 1;
         if (next >= deck.length) {
@@ -90,6 +104,7 @@ export default function Game() {
       streak={streak}
       deadItem={deadItem}
       origin={origin}
+      history={history}
       onRetry={start}
     />
   );
@@ -167,7 +182,7 @@ function Round({ item, streak, locked, onChoose }) {
   );
 }
 
-function Results({ phase, streak, deadItem, origin, onRetry }) {
+function Results({ phase, streak, deadItem, origin, history, onRetry }) {
   const rank = rankFor(streak);
   const won = phase === "win";
 
@@ -179,10 +194,26 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
     shareText
   )}&url=${encodeURIComponent(shareUrl)}`;
 
+  // wordle-style copy/paste result: bin-colour emoji squares + the link
+  const squares = (history || []).map((a) => BIN_EMOJI[a] || "⬛");
+  if (!won) squares.push("❌");
+  const rows = [];
+  for (let i = 0; i < squares.length; i += 10) rows.push(squares.slice(i, i + 10).join(""));
+  const resultText = [
+    "which bin is it?",
+    won
+      ? `i cleared all ${streak} bins. suspected council employee.`
+      : `i lasted ${streak} before suffolk's bins beat me.`,
+    "",
+    rows.join("\n"),
+    "",
+    `rank: ${rank.label}`,
+    shareUrl,
+  ].join("\n");
+
   const [copied, setCopied] = useState(false);
-  function copyLink() {
-    if (!origin) return;
-    navigator.clipboard?.writeText(shareUrl).then(
+  function copyResults() {
+    navigator.clipboard?.writeText(resultText).then(
       () => {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
@@ -238,6 +269,14 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
       <p className="streak">bins you got right before you bottled it</p>
       <div className="rank">{rank.label}</div>
 
+      {squares.length > 0 && (
+        <div className="resultgrid">
+          {rows.map((r, i) => (
+            <div key={i}>{r}</div>
+          ))}
+        </div>
+      )}
+
       {won ? (
         <div className="reveal">
           you sorted all {streak} without a single mistake. that is not normal. nobody knows the bins this well by accident. blink twice if the council is making you do this.
@@ -264,7 +303,7 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
             save image
           </a>
         )}
-        <button onClick={copyLink}>{copied ? "link copied" : "copy link"}</button>
+        <button onClick={copyResults}>{copied ? "copied!" : "copy results"}</button>
         <button onClick={onRetry}>try again</button>
       </div>
       <Footer />
@@ -273,5 +312,9 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
 }
 
 function Footer() {
-  return <p className="footer">babergh & mid suffolk rules</p>;
+  return (
+    <p className="footer">
+      babergh &amp; mid suffolk rules. unofficial, nothing to do with the council.
+    </p>
+  );
 }
