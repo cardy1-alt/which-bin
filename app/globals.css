@@ -11,8 +11,8 @@ body {
 body {
   background: #fff;
   color: #000;
-  /* deliberately the browser default serif. do not import a font. */
-  font-family: serif;
+  /* comic sans, on purpose. system fonts only, no imports. */
+  font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Comic Neue", cursive;
   text-transform: lowercase;
   line-height: 1.45;
   font-size: 18px;
@@ -46,7 +46,7 @@ p {
 }
 
 button {
-  font-family: serif;
+  font-family: inherit;
   text-transform: lowercase;
   font-size: 1rem;
   cursor: pointer;
@@ -150,7 +150,7 @@ button {
   background: #fff;
   color: #000;
   text-decoration: none;
-  font-family: serif;
+  font-family: inherit;
   text-transform: lowercase;
   font-size: 1rem;
 }

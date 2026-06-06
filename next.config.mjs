@@ -4,7 +4,7 @@ const nextConfig = {
     // make sure the serif fonts used by the /share og-image route are included
     // in that serverless function's bundle on vercel.
     outputFileTracingIncludes: {
-      "/share": ["./app/share/serif.ttf", "./app/share/serif-bold.ttf"],
+      "/share": ["./app/share/comic.woff", "./app/share/comic-bold.woff"],
     },
   },
 };
