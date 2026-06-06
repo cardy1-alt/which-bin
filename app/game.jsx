@@ -4,18 +4,21 @@ import { useEffect, useRef, useState } from "react";
 import { buildDeck, ANSWER_LABEL } from "../lib/items";
 import { rankFor } from "../lib/ranks";
 
+// bin colours follow suffolk's "better recycling" scheme (the same one
+// babergh & mid suffolk are rolling out): black general, blue recycling,
+// green-lidded paper & card, grey food caddy. "none of these" has no bin.
 const BINS = [
-  { value: "general", label: "general rubbish" },
-  { value: "recycling", label: "recycling" },
-  { value: "paper", label: "paper & card" },
-  { value: "food", label: "food caddy" },
-  { value: "trick", label: "none of these" },
+  { value: "general", label: "general rubbish", colour: "#1a1a1a" },
+  { value: "recycling", label: "recycling", colour: "#2b6cb0" },
+  { value: "paper", label: "paper & card", colour: "#3f8f29" },
+  { value: "food", label: "food caddy", colour: "#8a8d91" },
+  { value: "trick", label: "none of these", colour: null },
 ];
 
 const ADVANCE_MS = 120;
 
 export default function Game() {
-  const [phase, setPhase] = useState("title"); // title | playing | over | win
+  const [phase, setPhase] = useState("playing"); // playing | over | win
   const [deck, setDeck] = useState([]);
   const [idx, setIdx] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -24,8 +27,11 @@ export default function Game() {
   const [origin, setOrigin] = useState("");
   const timer = useRef(null);
 
+  // build the deck on the client after mount (avoids a hydration mismatch
+  // from the random shuffle) so the link drops you straight into the game.
   useEffect(() => {
     setOrigin(window.location.origin);
+    setDeck(buildDeck());
     return () => timer.current && clearTimeout(timer.current);
   }, []);
 
@@ -61,11 +67,20 @@ export default function Game() {
     }
   }
 
-  if (phase === "title") return <Title onStart={start} />;
-  if (phase === "playing")
+  if (phase === "playing") {
+    if (deck.length === 0) {
+      // brief mount-time state before the deck is ready
+      return (
+        <div>
+          <Title />
+          <p>sorting your bins...</p>
+          <Footer />
+        </div>
+      );
+    }
     return <Round item={deck[idx]} streak={streak} locked={locked} onChoose={choose} />;
+  }
 
-  // over or win
   return (
     <Results
       phase={phase}
@@ -77,23 +92,24 @@ export default function Game() {
   );
 }
 
-function Title({ onStart }) {
+function Title() {
+  return <h1>which bin is it?</h1>;
+}
+
+function Swatch({ colour }) {
   return (
-    <div>
-      <h1>which bin is it?</h1>
-      <p>babergh & mid suffolk changed the bins on 1 june 2026.</p>
-      <p>one wrong bin and you're out. how far can you get?</p>
-      <div className="actions">
-        <button onClick={onStart}>start sorting</button>
-      </div>
-      <Footer />
-    </div>
+    <span
+      className="swatch"
+      style={{ background: colour || "#fff" }}
+      aria-hidden="true"
+    />
   );
 }
 
 function Round({ item, streak, locked, onChoose }) {
   return (
     <div>
+      <Title />
       <p className="streak">streak: {streak}</p>
       <div className="item">
         {item.img ? (
@@ -112,6 +128,7 @@ function Round({ item, streak, locked, onChoose }) {
             disabled={locked}
             onClick={() => onChoose(b.value)}
           >
+            <Swatch colour={b.colour} />
             {b.label}
           </button>
         ))}

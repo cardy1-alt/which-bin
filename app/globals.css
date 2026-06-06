@@ -42,7 +42,8 @@ button {
 }
 
 .binbtn {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   text-align: left;
   padding: 10px 12px;
@@ -50,6 +51,15 @@ button {
   border: 1px solid #000;
   background: #fff;
   color: #000;
+}
+
+.swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+  border: 1px solid #000;
+  flex: 0 0 auto;
 }
 
 .binbtn:hover {
