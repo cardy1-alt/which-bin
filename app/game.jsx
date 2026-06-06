@@ -18,16 +18,10 @@ const BINS = [
 const MAIN_BINS = BINS.filter((b) => b.value !== "trick");
 const TRICK_BIN = BINS.find((b) => b.value === "trick");
 
-// emoji squares for the wordle-style copy/paste result. closest to the bin
-// colours: black general, blue recycling, green paper, brown food caddy,
-// white "none of these".
-const BIN_EMOJI = {
-  general: "⬛",
-  recycling: "🟦",
-  paper: "🟩",
-  food: "🟫",
-  trick: "⬜",
-};
+// wordle-style result: a green square for each correct bin, a red one for the
+// miss. simple and unambiguous (no bin-colour mapping to misread).
+const CORRECT_SQ = "🟩";
+const WRONG_SQ = "🟥";
 
 const ADVANCE_MS = 120;
 
@@ -194,9 +188,9 @@ function Results({ phase, streak, deadItem, origin, history, onRetry }) {
     shareText
   )}&url=${encodeURIComponent(shareUrl)}`;
 
-  // wordle-style copy/paste result: bin-colour emoji squares + the link
-  const squares = (history || []).map((a) => BIN_EMOJI[a] || "⬛");
-  if (!won) squares.push("❌");
+  // wordle-style copy/paste result: green per correct bin, red for the miss
+  const squares = (history || []).map(() => CORRECT_SQ);
+  if (!won) squares.push(WRONG_SQ);
   const rows = [];
   for (let i = 0; i < squares.length; i += 10) rows.push(squares.slice(i, i + 10).join(""));
   const resultText = [
