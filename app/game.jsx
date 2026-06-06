@@ -181,6 +181,9 @@ function Results({ phase, streak, deadItem, origin, history, onRetry }) {
   const won = phase === "win";
 
   const shareUrl = `${origin}/?streak=${streak}&rank=${rank.slug}`;
+  // clean, branded link for the copy/paste result (no query params, no www).
+  // the emoji grid already carries the score, so the link just says "come play".
+  const playUrl = (origin || "").replace("://www.", "://");
   const ogUrl = `${origin}/share?streak=${streak}&rank=${rank.slug}`;
   const storyUrl = `${origin}/share?format=story&streak=${streak}&rank=${rank.slug}`;
   const shareText = `i lasted ${streak} items before suffolk's new bin rules destroyed me. rank: ${rank.label}. think you can do better?`;
@@ -202,7 +205,7 @@ function Results({ phase, streak, deadItem, origin, history, onRetry }) {
     rows.join("\n"),
     "",
     `rank: ${rank.label}`,
-    shareUrl,
+    playUrl,
   ].join("\n");
 
   const [copied, setCopied] = useState(false);
