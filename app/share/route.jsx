@@ -70,17 +70,18 @@ export async function GET(req) {
   // landscape (1200x630) for link previews; vertical (1080x1920) for stories.
   const W = story ? 1080 : 1200;
   const H = story ? 1920 : 630;
-  const pad = story ? 96 : 56;
-  const border = story ? 10 : 6;
-  const bodyW = story ? 132 : 86;
-  const bodyH = story ? 150 : 98;
+  const pad = story ? 96 : 44;
+  const border = story ? 10 : 8;
+  const bodyW = story ? 132 : 108;
+  const bodyH = story ? 150 : 108;
   const lidH = story ? 26 : 18;
-  const binGap = story ? 34 : 22;
-  const titleSize = story ? 52 : 36;
-  const bigSize = story ? 116 : 76;
-  const subSize = story ? 60 : 46;
-  const rankSize = story ? 64 : 42;
-  const urlSize = story ? 50 : 34;
+  const binGap = story ? 34 : 26;
+  const titleSize = story ? 52 : 38;
+  const bigSize = story ? 116 : 78;
+  const subSize = story ? 60 : 42;
+  const rankSize = story ? 64 : 40;
+  const urlSize = story ? 50 : 30;
+  const sectionGap = story ? 64 : 28;
 
   return new ImageResponse(
     (
@@ -91,7 +92,8 @@ export async function GET(req) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center",
+          gap: sectionGap,
           background: "#ffffff",
           color: "#000000",
           fontFamily: "Comic Neue",
