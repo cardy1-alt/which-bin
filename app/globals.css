@@ -106,10 +106,26 @@ button {
   cursor: default;
 }
 
-.swatch.big {
-  width: 32px;
-  height: 32px;
-  margin: 0;
+/* wheelie-bin icon on the option tiles, matching the share card */
+.binicon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.binicon-lid {
+  width: 42px;
+  height: 9px;
+  border: 2px solid #000;
+  border-radius: 3px;
+  margin-bottom: 2px;
+}
+
+.binicon-body {
+  width: 34px;
+  height: 34px;
+  border: 2px solid #000;
+  border-radius: 4px 4px 7px 7px;
 }
 
 /* "none of these" sits full width on its own row below the grid */
@@ -127,12 +143,22 @@ button {
   cursor: default;
 }
 
+/* the in-game round screen is centred, with a bigger title */
+.round {
+  text-align: center;
+}
+
+.round h1 {
+  font-size: 2.2rem;
+  margin: 0 0 2px;
+}
+
 .head {
   margin-bottom: 4px;
 }
 
 .tagline {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   margin: 2px 0 0;
 }
 
@@ -143,12 +169,12 @@ button {
 .item {
   text-align: center;
   border: 1px solid #000;
-  padding: 12px 14px;
+  padding: 10px 14px;
   margin: 8px 0;
 }
 
 .item .emoji {
-  font-size: 72px;
+  font-size: 64px;
   line-height: 1;
 }
 

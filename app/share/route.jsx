@@ -5,7 +5,6 @@ import { join } from "node:path";
 // node runtime (not edge) so reading the bundled font files from disk works.
 export const runtime = "nodejs";
 export const contentType = "image/png";
-export const dynamic = "force-dynamic";
 
 // bundled comic neue (an open comic sans lookalike). read from the project
 // root at runtime; the woff files are force-included in this function's bundle
@@ -59,11 +58,17 @@ function Bins({ bodyW, bodyH, lidH, gap }) {
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const streakRaw = searchParams.get("streak");
-  const rank = (searchParams.get("rank") || "").replace(/-/g, " ").toLowerCase();
+  const streakRaw = searchParams.get("streak") || "";
+  // sanitise inputs: anyone can hit this url, so don't render arbitrary text.
+  const streakNum = /^\d+$/.test(streakRaw) ? Math.min(parseInt(streakRaw, 10), 9999) : null;
+  const hasScore = streakNum !== null;
+  const streak = hasScore ? String(streakNum) : "";
+  const rank = (searchParams.get("rank") || "")
+    .replace(/-/g, " ")
+    .replace(/[^a-z ]/g, "")
+    .trim()
+    .slice(0, 40);
   const story = searchParams.get("format") === "story";
-  const hasScore = streakRaw !== null && streakRaw !== "";
-  const streak = hasScore ? streakRaw : "";
 
   const { comic, comicBold } = await loadFonts();
 
@@ -73,15 +78,16 @@ export async function GET(req) {
   const pad = story ? 96 : 44;
   const border = story ? 10 : 8;
   const bodyW = story ? 132 : 108;
-  const bodyH = story ? 150 : 108;
+  const bodyH = story ? 150 : 102;
   const lidH = story ? 26 : 18;
   const binGap = story ? 34 : 26;
-  const titleSize = story ? 52 : 38;
+  const titleSize = story ? 52 : 34;
+  const subtitleSize = story ? 40 : 27;
   const bigSize = story ? 116 : 78;
   const subSize = story ? 60 : 42;
   const rankSize = story ? 64 : 40;
   const urlSize = story ? 50 : 30;
-  const sectionGap = story ? 64 : 28;
+  const sectionGap = story ? 60 : 24;
 
   return new ImageResponse(
     (
@@ -101,8 +107,20 @@ export async function GET(req) {
           border: `${border}px solid #000000`,
         }}
       >
-        <div style={{ display: "flex", fontSize: titleSize, fontWeight: 700 }}>
-          which bin is it?
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: story ? 10 : 4,
+          }}
+        >
+          <div style={{ display: "flex", fontSize: titleSize, fontWeight: 700 }}>
+            which bin is it?
+          </div>
+          <div style={{ display: "flex", fontSize: subtitleSize }}>
+            suffolk's new bin rules are impossible
+          </div>
         </div>
 
         <Bins bodyW={bodyW} bodyH={bodyH} lidH={lidH} gap={binGap} />
@@ -165,6 +183,9 @@ export async function GET(req) {
         { name: "Comic Neue", data: comic, weight: 400, style: "normal" },
         { name: "Comic Neue", data: comicBold, weight: 700, style: "normal" },
       ],
+      // ImageResponse already sets an immutable 1-year cache-control, so the cdn
+      // serves repeats without re-rendering. dropping force-dynamic (above) lets
+      // vercel honour that, which is what keeps this cheap under a viral spike.
     }
   );
 }

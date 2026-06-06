@@ -107,19 +107,29 @@ function Title() {
   );
 }
 
-function Swatch({ colour, big }) {
+function Swatch({ colour }) {
   return (
     <span
-      className={big ? "swatch big" : "swatch"}
+      className="swatch"
       style={{ background: colour || "#fff" }}
       aria-hidden="true"
     />
   );
 }
 
+// little wheelie-bin icon matching the share-card mock-up
+function BinIcon({ colour }) {
+  return (
+    <span className="binicon" aria-hidden="true">
+      <span className="binicon-lid" style={{ background: colour }} />
+      <span className="binicon-body" style={{ background: colour }} />
+    </span>
+  );
+}
+
 function Round({ item, streak, locked, onChoose }) {
   return (
-    <div>
+    <div className="round">
       <Title />
       <p className="streak">streak: {streak}</p>
       <div className="item">
@@ -139,7 +149,7 @@ function Round({ item, streak, locked, onChoose }) {
             disabled={locked}
             onClick={() => onChoose(b.value)}
           >
-            <Swatch colour={b.colour} big />
+            <BinIcon colour={b.colour} />
             <span>{b.label}</span>
           </button>
         ))}
