@@ -163,6 +163,7 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
 
   const shareUrl = `${origin}/?streak=${streak}&rank=${rank.slug}`;
   const ogUrl = `${origin}/share?streak=${streak}&rank=${rank.slug}`;
+  const storyUrl = `${origin}/share?format=story&streak=${streak}&rank=${rank.slug}`;
   const shareText = `i lasted ${streak} items before suffolk's new bin rules destroyed me. rank: ${rank.label}. think you can do better?`;
   const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
     shareText
@@ -178,6 +179,46 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
       },
       () => {}
     );
+  }
+
+  // primary share: open the native sheet (instagram stories, whatsapp, etc).
+  // share the vertical story image itself so it drops straight into a story.
+  const [sharing, setSharing] = useState(false);
+  async function shareNow() {
+    if (!origin || sharing) return;
+    setSharing(true);
+    try {
+      if (navigator.canShare) {
+        try {
+          const res = await fetch(storyUrl);
+          const blob = await res.blob();
+          const file = new File([blob], "which-bin-is-it.png", { type: "image/png" });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              text: shareText,
+              url: shareUrl,
+              title: "which bin is it?",
+            });
+            return;
+          }
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+        }
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ text: shareText, url: shareUrl, title: "which bin is it?" });
+          return;
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+        }
+      }
+      // desktop fallback: x intent
+      window.open(xHref, "_blank", "noopener,noreferrer");
+    } finally {
+      setSharing(false);
+    }
   }
 
   return (
@@ -207,15 +248,13 @@ function Results({ phase, streak, deadItem, origin, onRetry }) {
 
       <p className="prompt">go on, drag your friends down with you:</p>
       <div className="actions">
-        <a href={xHref} target="_blank" rel="noopener noreferrer">
-          post to x
-        </a>
-        <button onClick={copyLink}>{copied ? "link copied" : "copy link"}</button>
+        <button onClick={shareNow}>{sharing ? "sharing..." : "share to your story"}</button>
         {origin && (
-          <a href={ogUrl} target="_blank" rel="noopener noreferrer">
+          <a href={storyUrl} download="which-bin-is-it.png" target="_blank" rel="noopener noreferrer">
             save image
           </a>
         )}
+        <button onClick={copyLink}>{copied ? "link copied" : "copy link"}</button>
         <button onClick={onRetry}>try again</button>
       </div>
       <Footer />
